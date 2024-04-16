@@ -3,7 +3,7 @@ import React, {useEffect, useState} from 'react';
 import {KeyboardAvoidingView, StyleSheet, TextInput, TouchableOpacity, Text, View} from 'react-native';
 import {auth} from '../firebase';
 
-const LoginScreen = () => {
+const WelcomeScreen = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [errorMessage, setErrorMessage] = useState(null);
@@ -18,29 +18,6 @@ const LoginScreen = () => {
             },
             body: JSON.stringify({uid})
         });
-    }
-
-    const interpretFirebaseError = (errorCode) => {
-        console.log({errorCode})
-        switch(errorCode) {
-            case 'auth/invalid-email':
-                return 'Please provide a valid email address.';
-            case 'auth/user-disabled':
-                return 'Your account has been disabled. Please contact support.';
-            case 'auth/user-not-found':
-                return 'No account found with this email.';
-            case 'auth/wrong-password':
-            case 'auth/invalid-credential':
-                return 'Incorrect password. Please try again.';
-            case 'auth/email-already-in-use':
-                return 'The email address is already in use by another account.';
-            case 'auth/operation-not-allowed':
-                return 'Signing in with email and password is not allowed.';
-            case 'auth/weak-password':
-                return 'The password is not strong enough.';
-            default:
-                return 'An unknown error occurred. Please try again.';
-        }
     }
 
     useEffect(() => {
@@ -68,7 +45,7 @@ const LoginScreen = () => {
                     setErrorMessage(errorResponse.message || 'Registration failed');
                 }
             })
-            .catch(error => setErrorMessage(interpretFirebaseError(error.code)));
+            .catch(error => setErrorMessage(error.code));
     };
 
     const handleLogin = () => {
@@ -88,7 +65,7 @@ const LoginScreen = () => {
                     setErrorMessage(errorResponse.message || 'Login failed');
                 }
             })
-            .catch(error => setErrorMessage(interpretFirebaseError(error.code)));
+            .catch(error => setErrorMessage(error.code));
     };
 
     return (
@@ -128,7 +105,7 @@ const LoginScreen = () => {
     )
 };
 
-export default LoginScreen;
+export default WelcomeScreen;
 
 const styles = StyleSheet.create({
     container: {
