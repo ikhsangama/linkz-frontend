@@ -1,13 +1,14 @@
-import {useNavigation} from '@react-navigation/core'
-import React, {useEffect, useState} from 'react'
-import {KeyboardAvoidingView, StyleSheet, Text, TextInput, TouchableOpacity, View} from 'react-native'
-import {auth} from '../firebase'
+import {useNavigation} from '@react-navigation/core';
+import React, {useEffect, useState} from 'react';
+import {KeyboardAvoidingView, StyleSheet, TextInput, TouchableOpacity, Text, View} from 'react-native';
+import {auth} from '../firebase';
 
 const LoginScreen = () => {
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [errorMessage, setErrorMessage] = useState(null);
 
-    const navigation = useNavigation()
+    const navigation = useNavigation();
     const hostUrl = process.env.LINKZ_APP_API_URL || 'http://localhost:3000'
     const makeRequest = async (method, path, uid) => {
         return await fetch(`${hostUrl}/user/${path}`, {
@@ -29,7 +30,7 @@ const LoginScreen = () => {
 
     const handleSignUp = () => {
         if (email.trim() === "" || password.trim() === "") {
-            alert("Email or Password cannot be empty.");
+            setErrorMessage("Email or Password cannot be empty");
             return;
         }
         auth
@@ -40,13 +41,17 @@ const LoginScreen = () => {
                 const response = await makeRequest('POST', 'register', user.uid);
                 if (!response.ok) {
                     const errorResponse = await response.json();
-                    alert(errorResponse.message || 'Registration failed');
+                    setErrorMessage(errorResponse.message || 'Registration failed');
                 }
             })
-            .catch(error => alert(error.message));
+            .catch(error => setErrorMessage(error.message));
     };
 
     const handleLogin = () => {
+        if (email.trim() === "" || password.trim() === "") {
+            setErrorMessage("Email or Password cannot be empty");
+            return;
+        }
         auth
             .signInWithEmailAndPassword(email, password)
             .then(async userCredentials => {
@@ -55,96 +60,104 @@ const LoginScreen = () => {
                 const response = await makeRequest('POST', 'login', user.uid);
                 if (!response.ok) {
                     const errorResponse = await response.json();
-                    alert(errorResponse.message || 'Login failed');
+                    setErrorMessage(errorResponse.message || 'Login failed');
                 }
             })
-            .catch(error => alert(error.message));
+            .catch(error => setErrorMessage(error.message));
     };
 
     return (
-        <KeyboardAvoidingView
-            style={styles.container}
-            behavior="padding"
-        >
+        <KeyboardAvoidingView style={styles.container} behavior="padding">
+            <Text style={styles.headerText}>Welcome!</Text>
+
+            {errorMessage && <Text style={styles.errorText}>Error: {errorMessage}</Text>}
+
             <View style={styles.inputContainer}>
                 <TextInput
                     placeholder="Email"
                     value={email}
                     onChangeText={text => setEmail(text)}
                     style={styles.input}
+                    placeholderTextColor='#b0c4de'
                 />
                 <TextInput
                     placeholder="Password"
                     value={password}
                     onChangeText={text => setPassword(text)}
-                    style={styles.input}
+                    style={[styles.input, {marginTop: 20}]}
                     secureTextEntry
+                    placeholderTextColor='#b0c4de'
                 />
             </View>
 
             <View style={styles.buttonContainer}>
-                <TouchableOpacity
-                    onPress={handleLogin}
-                    style={styles.button}
-                >
+                <TouchableOpacity onPress={handleLogin} style={styles.button}>
                     <Text style={styles.buttonText}>Login</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={handleSignUp}
-                    style={[styles.button, styles.buttonOutline]}
-                >
-                    <Text style={styles.buttonOutlineText}>Register</Text>
+
+                <TouchableOpacity onPress={handleSignUp} style={[styles.button, styles.outlinedButton]}>
+                    <Text style={[styles.buttonText, styles.outlinedButtonText]}>Register</Text>
                 </TouchableOpacity>
             </View>
         </KeyboardAvoidingView>
     )
-}
+};
 
-export default LoginScreen
+export default LoginScreen;
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#e6f0fa'
+    },
+    headerText: {
+        fontSize: 36,
+        fontWeight: '700',
+        color: '#1a528a',
+        marginBottom: 30,
     },
     inputContainer: {
-        width: '80%'
+        width: '80%',
+        marginBottom: 40,
     },
     input: {
-        backgroundColor: 'white',
-        paddingHorizontal: 15,
-        paddingVertical: 10,
+        fontSize: 16,
+        borderColor: '#1a528a',
+        borderWidth: 1,
         borderRadius: 10,
-        marginTop: 5,
+        paddingHorizontal:10,
+        color: '#000',
+        height: 50,
     },
     buttonContainer: {
         width: '60%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        marginTop: 40,
     },
     button: {
-        backgroundColor: '#0782F9',
-        width: '100%',
-        padding: 15,
+        backgroundColor: "#1a87f0",
         borderRadius: 10,
+        height: 50,
         alignItems: 'center',
+        justifyContent: 'center',
+        margin: 10,
+        width: '100%'
     },
-    buttonOutline: {
-        backgroundColor: 'white',
-        marginTop: 5,
-        borderColor: '#0782F9',
+    outlinedButton: {
+        backgroundColor: '#e6f0fa',
+        borderColor: '#1a87f0',
         borderWidth: 2,
     },
     buttonText: {
-        color: 'white',
-        fontWeight: '700',
-        fontSize: 16,
+        color: '#fff',
+        fontSize: 18,
     },
-    buttonOutlineText: {
-        color: '#0782F9',
-        fontWeight: '700',
-        fontSize: 16,
+    outlinedButtonText: {
+        color: '#1a87f0',
     },
-})
+    errorText: {
+        color: 'red',
+        fontSize: 16,
+        marginBottom: 10,
+    },
+});
