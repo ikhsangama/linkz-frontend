@@ -24,9 +24,21 @@ const LoginScreen = () => {
         }
         auth
             .createUserWithEmailAndPassword(email, password)
-            .then(userCredentials => {
+            .then(async userCredentials => {
                 const user = userCredentials.user;
-                console.log('Registered with:', user.email);
+                console.log('Registered with:', user.email, user.uid);
+                const response = await fetch('http://localhost:3000/user/register', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({uid: user.uid})
+                })
+                console.log({response})
+                if (!response.ok) {
+                    const errorResponse = await response.json();
+                    alert(errorResponse.message || 'Registration failed');
+                }
             })
             .catch(error => alert(error.message))
     }
@@ -34,9 +46,21 @@ const LoginScreen = () => {
     const handleLogin = () => {
         auth
             .signInWithEmailAndPassword(email, password)
-            .then(userCredentials => {
+            .then(async userCredentials => {
                 const user = userCredentials.user;
-                console.log('Logged in with:', user.email);
+                console.log('Logged in with:', user.email, user.uid);
+                const response = await fetch('http://localhost:3000/user/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({uid: user.uid})
+                })
+                console.log({response})
+                if (!response.ok) {
+                    const errorResponse = await response.json();
+                    alert(errorResponse.message || 'Login failed');
+                }
             })
             .catch(error => alert(error.message))
     }
