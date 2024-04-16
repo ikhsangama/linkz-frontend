@@ -8,6 +8,16 @@ const LoginScreen = () => {
     const [password, setPassword] = useState('')
 
     const navigation = useNavigation()
+    const hostUrl = process.env.LINKZ_APP_API_URL || 'http://localhost:3000'
+    const makeRequest = async (method, path, uid) => {
+        return await fetch(`${hostUrl}/user/${path}`, {
+            method: method,
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({uid})
+        });
+    }
 
     useEffect(() => {
         return auth.onAuthStateChanged(user => {
@@ -19,7 +29,7 @@ const LoginScreen = () => {
 
     const handleSignUp = () => {
         if (email.trim() === "" || password.trim() === "") {
-            alert("Email or Password cannot be empty.")
+            alert("Email or Password cannot be empty.");
             return;
         }
         auth
@@ -27,21 +37,14 @@ const LoginScreen = () => {
             .then(async userCredentials => {
                 const user = userCredentials.user;
                 console.log('Registered with:', user.email, user.uid);
-                const response = await fetch('http://localhost:3000/user/register', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({uid: user.uid})
-                })
-                console.log({response})
+                const response = await makeRequest('POST', 'register', user.uid);
                 if (!response.ok) {
                     const errorResponse = await response.json();
                     alert(errorResponse.message || 'Registration failed');
                 }
             })
-            .catch(error => alert(error.message))
-    }
+            .catch(error => alert(error.message));
+    };
 
     const handleLogin = () => {
         auth
@@ -49,21 +52,14 @@ const LoginScreen = () => {
             .then(async userCredentials => {
                 const user = userCredentials.user;
                 console.log('Logged in with:', user.email, user.uid);
-                const response = await fetch('http://localhost:3000/user/login', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({uid: user.uid})
-                })
-                console.log({response})
+                const response = await makeRequest('POST', 'login', user.uid);
                 if (!response.ok) {
                     const errorResponse = await response.json();
                     alert(errorResponse.message || 'Login failed');
                 }
             })
-            .catch(error => alert(error.message))
-    }
+            .catch(error => alert(error.message));
+    };
 
     return (
         <KeyboardAvoidingView

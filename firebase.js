@@ -2,7 +2,7 @@ import firebase from "firebase/compat";
 import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyD4CeMThEB27aNgdWaGUJTB0avEIabe7_Y",
+    apiKey: process.env.FIREBASE_API_KEY || "AIzaSyD4CeMThEB27aNgdWaGUJTB0avEIabe7_Y",
     authDomain: "linkz-f38ce.firebaseapp.com",
     projectId: "linkz-f38ce",
     storageBucket: "linkz-f38ce.appspot.com",
