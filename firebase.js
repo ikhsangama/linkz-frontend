@@ -1,5 +1,4 @@
 import firebase from "firebase/compat";
-import { getAnalytics } from "firebase/analytics";
 
 const firebaseConfig = {
     apiKey: process.env.FIREBASE_API_KEY || "AIzaSyD4CeMThEB27aNgdWaGUJTB0avEIabe7_Y",
@@ -17,7 +16,6 @@ if (firebase.apps.length === 0) {
 } else {
     app = firebase.app()
 }
-const analytics = getAnalytics(app);
 const auth = firebase.auth()
 
 export { auth };

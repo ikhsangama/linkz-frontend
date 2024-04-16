@@ -20,6 +20,29 @@ const LoginScreen = () => {
         });
     }
 
+    const interpretFirebaseError = (errorCode) => {
+        console.log({errorCode})
+        switch(errorCode) {
+            case 'auth/invalid-email':
+                return 'Please provide a valid email address.';
+            case 'auth/user-disabled':
+                return 'Your account has been disabled. Please contact support.';
+            case 'auth/user-not-found':
+                return 'No account found with this email.';
+            case 'auth/wrong-password':
+            case 'auth/invalid-credential':
+                return 'Incorrect password. Please try again.';
+            case 'auth/email-already-in-use':
+                return 'The email address is already in use by another account.';
+            case 'auth/operation-not-allowed':
+                return 'Signing in with email and password is not allowed.';
+            case 'auth/weak-password':
+                return 'The password is not strong enough.';
+            default:
+                return 'An unknown error occurred. Please try again.';
+        }
+    }
+
     useEffect(() => {
         return auth.onAuthStateChanged(user => {
             if (user) {
@@ -40,11 +63,12 @@ const LoginScreen = () => {
                 console.log('Registered with:', user.email, user.uid);
                 const response = await makeRequest('POST', 'register', user.uid);
                 if (!response.ok) {
+                    console.log({response})
                     const errorResponse = await response.json();
                     setErrorMessage(errorResponse.message || 'Registration failed');
                 }
             })
-            .catch(error => setErrorMessage(error.message));
+            .catch(error => setErrorMessage(interpretFirebaseError(error.code)));
     };
 
     const handleLogin = () => {
@@ -59,11 +83,12 @@ const LoginScreen = () => {
                 console.log('Logged in with:', user.email, user.uid);
                 const response = await makeRequest('POST', 'login', user.uid);
                 if (!response.ok) {
+                    console.log({response})
                     const errorResponse = await response.json();
                     setErrorMessage(errorResponse.message || 'Login failed');
                 }
             })
-            .catch(error => setErrorMessage(error.message));
+            .catch(error => setErrorMessage(interpretFirebaseError(error.code)));
     };
 
     return (
